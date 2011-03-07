@@ -56,9 +56,23 @@ script: JFrame.AjaxLoad.js
 			var requestTarget = target;
 			if (action != 'target') requestTarget = new Element('div');
 
+			//If data-ajax-submit-form is present
+			var formSelector = link.getData('ajax-submit-form');
+			if (formSelector) var form = link.getParent(formSelector) || this.getWindowElement().getElement(formSelector);
+			if (form) {
+				//Get the form and create a representative request path.
+				var formQueryString = form.toQueryString();
+				var formQueryObject = formQueryString.parseQueryString();
+				var formPath = form.get('action') || this.currentPath;
+				var formURI = new URI(formPath);
+				var extraData = link.getJSONData('extra-data');
+				if (extraData) formQueryObject = $merge(formQueryObject, extraData);
+				formURI.setData(formQueryObject, true);
+			}
+			var requestPath = formURI || link.get('href');
 			var options = {
-				filter: link.get('data', 'ajax-filter'),
-				requestPath: link.get('href'),
+				filter: link.getData('ajax-filter'),
+				requestPath: requestPath,
 				spinnerTarget: target,
 				target: requestTarget,
 				onlyProcessPartials: true,
@@ -100,12 +114,11 @@ script: JFrame.AjaxLoad.js
 					this.behavior.fireEvent('update', [data, state]);
 				}.bind(this)
 			};
-			var spinnerTarget = link.get('data', 'spinner-target');
+			var spinnerTarget = link.getData('spinner-target');
 			if (spinnerTarget) {
 				spinnerTarget = $(this).getElement(spinnerTarget);
 				options.spinnerTarget = spinnerTarget;
 			}
-
 			this.load(options);
 		};
 	});
