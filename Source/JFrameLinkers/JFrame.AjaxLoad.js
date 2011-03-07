@@ -34,6 +34,7 @@ script: JFrame.AjaxLoad.js
 		* replace means destroy the target and replace it entirely with the response.
 		* append means leave everything in place and inject the response after the target.
 		* target means empty the target and fill it with the response
+		* partial-update performs a partial refresh
 		* links with a "data-ajax-filter" property will inject only the elements that match the selector it specifies.
 		  For example, if you have a table that you want to add rows to, and your request returns an HTML document that
 		  includes an entire table, you would specify data-ajax-filter="table tbody tr" to only inject the rows from
@@ -42,7 +43,7 @@ script: JFrame.AjaxLoad.js
 
 	var linkers = {};
 
-	['append', 'replace', 'target', 'after', 'before'].each(function(action){
+	['append', 'replace', 'target', 'after', 'before', 'partial-update'].each(function(action){
 
 		linkers['[data-ajax-' + action + ']'] = function(event, link){
 			var target = $(this).getElement(link.get('data', 'ajax-' + action));
@@ -70,6 +71,11 @@ script: JFrame.AjaxLoad.js
 				formURI.setData(formQueryObject, true);
 			}
 			var requestPath = formURI || link.get('href');
+			
+			var partialOptions = {
+				onlyProcessPartials: false,
+				forcePartial: true
+			};
 			var options = {
 				filter: link.getData('ajax-filter'),
 				requestPath: requestPath,
@@ -118,6 +124,9 @@ script: JFrame.AjaxLoad.js
 			if (spinnerTarget) {
 				spinnerTarget = $(this).getElement(spinnerTarget);
 				options.spinnerTarget = spinnerTarget;
+			}
+			if (action == 'partial-update') {
+				options = $merge(options, partialOptions);
 			}
 			this.load(options);
 		};
