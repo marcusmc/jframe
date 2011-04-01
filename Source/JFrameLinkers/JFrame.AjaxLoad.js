@@ -93,7 +93,7 @@ script: JFrame.AjaxLoad.js
 		if (action != 'target') requestTarget = new Element('div');
 
 		var spinnerTarget = element.getData('spinner-target');
-		if (spinnerTarget) spinnerTarget = $(this).getElement(spinnerTarget);
+		if (spinnerTarget) spinnerTarget = containerElement.getElement(spinnerTarget);
 
 		return {
 			spinnerTarget: spinnerTarget || target,
